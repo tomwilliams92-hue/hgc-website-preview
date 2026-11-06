@@ -88,6 +88,7 @@
       $('.holecap h2', hh).textContent = 'Hole ' + words[n - 1];
       $('.holecap .meta', hh).textContent = `Par ${w[1]}, ${w[0]} yards from the whites, stroke index ${w[2]}`;
       $('.holeinfo .desc').textContent = h.note;
+      $('.holeinfo .protip p').textContent = h.tip || '';
       $('[data-hb=men]').innerHTML = tees.slice(0, 2).map(([k, l, c]) => `<tr><td><span class="sw" style="background:${c}"></span>${l}</td><td>${h[k][1]}</td><td>${h[k][0]}</td><td>${h[k][2]}</td></tr>`).join('');
       $('[data-hb=ladies]').innerHTML = `<tr><td><span class="sw" style="background:${tees[2][2]}"></span>Red</td><td>${h.red[1]}</td><td>${h.red[0]}</td><td>${h.red[2]}</td></tr>`;
       if (!params.has('clean')) history.replaceState(null, '', '#hole-' + n);
@@ -105,3 +106,10 @@
     draw();
   }
 })();
+
+/* review carousel arrows (06.11.2026) */
+document.querySelectorAll('.rv-car').forEach(c => {
+  const t = c.querySelector('.rv-track');
+  c.querySelector('.prev').onclick = () => t.scrollBy({ left: -t.clientWidth, behavior: 'smooth' });
+  c.querySelector('.next').onclick = () => t.scrollBy({ left: t.clientWidth, behavior: 'smooth' });
+});
