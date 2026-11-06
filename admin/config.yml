@@ -1,0 +1,52 @@
+# The online example: no sign-in or server; changes stay in the visitor's browser (see index.html).
+backend:
+  name: test-repo
+  login: false
+site_url: https://tomwilliams92-hue.github.io/hgc-website-preview/
+display_url: https://tomwilliams92-hue.github.io/hgc-website-preview/
+logo_url: ../img/club/crest.png
+media_folder: img/uploads
+public_folder: img/uploads
+
+collections:
+  - name: course
+    label: Course status
+    editor: {preview: false}
+    files:
+      - name: status
+        label: Course status today
+        file: content/course-status.json
+        fields:
+          - label: Status
+            name: status
+            widget: select
+            options:
+              - {label: "Open", value: "Open"}
+              - {label: "Open, on temporary greens", value: "Open, temporary greens"}
+              - {label: "Closed", value: "Closed"}
+            hint: Shows at the top of every page, beside Book a tee time.
+          - label: Details visitors see
+            name: detail
+            widget: string
+            hint: For example which holes are on temporary greens, or whether buggies are allowed.
+
+  - name: fixtures
+    label: Fixtures and club diary
+    editor: {preview: false}
+    files:
+      - name: fixtures
+        label: Fixtures
+        file: content/fixtures.json
+        fields:
+          - label: Fixtures
+            name: fixtures
+            label_singular: fixture
+            widget: list
+            collapsed: true
+            add_to_top: true
+            summary: "{{fields.date | date('ddd D MMM')}}: {{fields.title}}"
+            fields:
+              - {label: Date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "D MMMM YYYY", time_format: false}
+              - {label: "What's on", name: title, widget: string}
+              - {label: "Details", name: details, widget: string, required: false}
+          - {label: "Fixture list to download (PDF)", name: pdf, widget: file, required: false}

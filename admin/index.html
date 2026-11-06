@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Website editor | Holyhead Golf Club</title><link rel="icon" href="../img/club/crest.png">
+<style>
+#demo-bar{position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#16402c;color:#fff;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:10px 16px;display:flex;gap:10px 14px;align-items:center;justify-content:center;flex-wrap:wrap}
+#demo-bar a,#demo-bar button{color:#fff;font:inherit;font-weight:600;background:none;border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:5px 12px;cursor:pointer;text-decoration:none}
+body{padding-bottom:60px}
+a[href*="docs/test-backend"]{display:none!important}
+</style></head>
+<body>
+<div id="demo-bar"><span>Example editor. On the real site you sign in first with your own email and password. Changes here are saved in this browser only, so nobody else sees them.</span><a href="../">Open the website</a><button id="demo-reset" type="button">Put the example back</button></div>
+<script>
+/* No sign-in or server online: the editor keeps its files in the page (window.repoFiles), and every
+   save is also kept in this browser (localStorage), which js/site.js reads before content/*.json. */
+const START = {"course-status.json": "{\n  \"status\": \"Open\",\n  \"detail\": \"All 18 holes. Main greens in play; trolleys and buggies allowed.\"\n}\n", "fixtures.json": "{\n  \"fixtures\": [\n    {\n      \"date\": \"2026-11-01\",\n      \"title\": \"Ladies Sunday roll-up\",\n      \"details\": \"\"\n    },\n    {\n      \"date\": \"2026-11-01\",\n      \"title\": \"Junior roll-up\",\n      \"details\": \"11am\"\n    },\n    {\n      \"date\": \"2026-11-06\",\n      \"title\": \"Ladies roll-up\",\n      \"details\": \"9.15 off the 9th\"\n    },\n    {\n      \"date\": \"2026-11-08\",\n      \"title\": \"Ladies Sunday roll-up\",\n      \"details\": \"\"\n    },\n    {\n      \"date\": \"2026-11-08\",\n      \"title\": \"Junior roll-up\",\n      \"details\": \"11am\"\n    },\n    {\n      \"date\": \"2026-11-15\",\n      \"title\": \"Junior roll-up\",\n      \"details\": \"11am\"\n    },\n    {\n      \"date\": \"2026-11-22\",\n      \"title\": \"Junior roll-up\",\n      \"details\": \"11am\"\n    },\n    {\n      \"date\": \"2026-11-29\",\n      \"title\": \"Junior roll-up\",\n      \"details\": \"11am\"\n    }\n  ],\n  \"pdf\": \"\"\n}\n"};
+const K = 'hgc-demo:';
+const get = k => { try { return localStorage.getItem(K + k); } catch (e) { return null; } };
+const set = (k, v) => { try { localStorage.setItem(K + k, v); } catch (e) {} };
+window.repoFiles = { content: {} };
+for (const f in START) window.repoFiles.content[f] = { path: 'content/' + f, content: get(f) || START[f] };
+</script>
+<script src="https://unpkg.com/decap-cms@3.17.3/dist/decap-cms.js"></script>
+<script>
+CMS.registerEventListener({ name: 'postSave', handler: () => {
+  for (const f in START) {
+    const raw = window.repoFiles.content[f].content;
+    if (raw !== (get(f) || START[f])) { set(f, raw); set(f + ':mod', new Date().toISOString()); }
+  }
+  const up = ((window.repoFiles.img || {}).uploads) || {};
+  for (const n in up) {
+    const a = up[n].content;
+    if (a && a.fileObj && !get('file:' + up[n].path)) {
+      const r = new FileReader();
+      r.onload = () => set('file:' + up[n].path, r.result);
+      r.readAsDataURL(a.fileObj);
+    }
+  }
+} });
+document.getElementById('demo-reset').onclick = () => {
+  try { Object.keys(localStorage).filter(k => k.startsWith(K)).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+  location.reload();
+};
+</script>
+</body></html>
