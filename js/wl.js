@@ -45,17 +45,21 @@
       ifr.style.transformOrigin = 'top center'; ifr.style.transform = `translateX(-50%) scale(${Hh / 2160})`;
     };
     window.onYouTubeIframeAPIReady = () => {
-      new YT.Player('ytbg-player', {
+      const pl = new YT.Player('ytbg-player', {
         videoId: yb.dataset.yt,
         playerVars: { autoplay: 1, mute: 1, controls: 0, disablekb: 1, modestbranding: 1, playsinline: 1, rel: 0, iv_load_policy: 3, fs: 0, loop: 1, playlist: yb.dataset.yt },
         events: {
           onReady: e => { fit(); e.target.mute(); e.target.setPlaybackRate(0.5); e.target.playVideo(); },
           onStateChange: e => {
-            if (e.data === 1) { yb.classList.add('playing'); yb.closest('.panel').classList.add('vid'); e.target.setPlaybackRate(0.5); }
-            if (e.data === 0) { e.target.seekTo(0); e.target.playVideo(); }
+            const show = on => { clearTimeout(yb.t); yb.classList.toggle('playing', on); yb.closest('.panel').classList.toggle('vid', on); };
+            // YouTube puts its own play/pause buttons over the first few seconds of play, so the video fades in once they've gone
+            if (e.data === 1) { e.target.setPlaybackRate(0.5); clearTimeout(yb.t); yb.t = setTimeout(() => show(true), 3500); }
+            if (e.data === 2) show(false);                                        // paused: the photo, never a play button
+            if (e.data === 0) { show(false); e.target.seekTo(0); e.target.playVideo(); }
           },
         },
       });
+      addEventListener('visibilitychange', () => { if (!document.hidden && pl.playVideo) pl.playVideo(); });   // carry on after switching tabs
       addEventListener('resize', fit);
     };
     // the video waits until the page has finished loading, so the photo and words appear first

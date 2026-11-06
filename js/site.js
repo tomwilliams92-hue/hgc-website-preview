@@ -261,7 +261,13 @@
   const compass = d => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(d / 45) % 8];
   const wxText = c => c === 0 ? 'Clear' : c <= 2 ? 'Partly cloudy' : c === 3 ? 'Cloudy' : c <= 48 ? 'Fog' : c <= 57 ? 'Drizzle' : c <= 67 ? 'Rain' : c <= 77 ? 'Snow' : c <= 82 ? 'Showers' : 'Thunder';
   const putWx = (k, v) => $$(`[data-wx=${k}]`).forEach(el => el.textContent = v);
-  if ($('[data-wx]')) {
+  const cloud = '<path d="M7 17.5h10a3.8 3.8 0 0 0 .5-7.6 5.3 5.3 0 0 0-10.2 1.5A3.1 3.1 0 0 0 7 17.5z"/>';
+  const WXI = { sun: '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>',
+    part: '<path d="M8 3v1.4M2.8 8.2h1.4M4.4 4.6l1 1M11.6 4.6l-1 1"/><path d="M10.9 9.4A3.3 3.3 0 0 0 5 9.6"/>' + cloud, cloud,
+    fog: '<path d="M4 8.5h16M6 12.5h12M4 16.5h16"/>', rain: cloud + '<path d="M9 19.5l-.8 2M13 19.5l-.8 2M16.6 19.5l-.8 2"/>',
+    snow: cloud + '<path d="M9 20.5h.01M12.5 21h.01M16 20.5h.01"/>', storm: cloud + '<path d="M12.6 17.8l-1.8 2.6h2.6l-1.6 2.3"/>' };
+  const wxIcon = c => WXI[c === 0 ? 'sun' : c <= 2 ? 'part' : c === 3 ? 'cloud' : c <= 48 ? 'fog' : c <= 67 || (c >= 80 && c <= 82) ? 'rain' : c <= 86 ? 'snow' : 'storm'];
+  const loadWx = () =>
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${H.geo[0]}&longitude=${H.geo[1]}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,wind_speed_10m,weather_code&daily=sunset&wind_speed_unit=mph&timezone=Europe%2FLondon&forecast_days=2`)
       .then(r => r.json()).then(w => {
         const c = w.current;
@@ -275,9 +281,12 @@
         const now = new Date(); const start = w.hourly.time.findIndex(t => new Date(t) >= now);
         $$('.hours').forEach(h => h.innerHTML = w.hourly.time.slice(start, start + 8).map((t, k) =>
           `<div>${t.slice(11, 13)}:00<b>${Math.round(w.hourly.temperature_2m[start + k])}°</b>${Math.round(w.hourly.wind_speed_10m[start + k])} mph</div>`).join(''));
+        $$('.cond .wxi').forEach(el => el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${wxIcon(c.weather_code)}</svg>`);
+        $$('.cond .warrow svg').forEach(s => s.style.transform = `rotate(${c.wind_direction_10m + 180}deg)`);   // points the way the wind blows
+        putWx('at', new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' }));
         $$('[data-wx-live]').forEach(el => el.hidden = false);
       }).catch(() => $$('[data-wx-off]').forEach(el => el.hidden = false));
-  }
+  if ($('[data-wx]')) { loadWx(); setInterval(loadWx, 10 * 60 * 1000); }   // fresh every ten minutes while the page is open
 
   /* ---------- what the office changes in the editor (/admin): course status and fixtures ---------- */
   // the online example's editor saves to this browser only (see publish_pages.py), so that comes first
@@ -291,7 +300,9 @@
   content('course-status.json').then(s => {
     if (!s) return;
     const k = /closed/i.test(s.status) ? 'closed' : /temporary/i.test(s.status) ? 'temp' : 'open', [en, cy, short] = STATUS[k];
-    $$('[data-cs=pill]').forEach(a => { a.title = s.detail || ''; $('.sdot', a).className = 'sdot ' + k; const t = $('span', a); t.textContent = en; t.dataset.cy = cy; });
+    $$('[data-cs=pill]').forEach(a => { a.title = s.detail || ''; const t = $('span', a); t.textContent = en; t.dataset.cy = cy; });
+    $$('[data-cs] .sdot').forEach(d => d.className = 'sdot ' + k);
+    $$('[data-cs=detail]').forEach(el => el.textContent = s.detail || '');
     $$('[data-cs=line]').forEach(el => el.firstChild.textContent = 'Course status: ' + short);
     $$('[data-cs=sum]').forEach(el => el.textContent = short + '. ' + (s.detail || ''));
     if (s._mod) $$('[data-cs=upd]').forEach(el => el.textContent = 'Updated by the office, ' + new Date(s._mod).toLocaleString('en-GB', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '.');
