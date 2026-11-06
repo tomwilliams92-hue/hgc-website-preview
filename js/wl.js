@@ -32,9 +32,10 @@
     $$('.panel .down').forEach(b => b.onclick = () => { const p = b.closest('.panel').nextElementSibling; if (p) scrollTo({ top: p.offsetTop, behavior: calm ? 'auto' : 'smooth' }); });
   }
 
-  /* hero: the club's flyover of the 10th, muted, looping, half speed (needs the site served over http; YouTube won't play from a file) */
+  /* hero: the club's flyover of the 10th, muted, looping, half speed (needs the site served over http; YouTube won't play from a file).
+     Phones keep the photo: YouTube's overlay shows there, autoplay can be blocked, and it would stream 4K over mobile data. */
   const yb = $('.ytbg');
-  if (yb && /^https?:/.test(location.protocol) && (!calm || params.has('clean'))) {
+  if (yb && /^https?:/.test(location.protocol) && (!calm || params.has('clean')) && !matchMedia('(max-width: 760px)').matches) {
     const fit = () => {
       const w = yb.clientWidth, h = yb.clientHeight, ifr = $('iframe', yb);
       if (!ifr) return;

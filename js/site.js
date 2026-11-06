@@ -311,6 +311,13 @@
       html += `<div class="d${key === todayIso ? ' today' : ''}"><b>${d}</b>${evs}</div>`;
     }
     cal.innerHTML = html;
+    // phones get the same diary as a list (the month grid is too narrow to read there)
+    let list = $('#callist');
+    if (!list) { list = document.createElement('ul'); list.id = 'callist'; list.className = 'callist'; cal.after(list); }
+    list.innerHTML = Object.keys(diary).filter(k => k.startsWith(`${y}-11-`)).sort().map(k => {
+      const d = new Date(k + 'T12:00');
+      return `<li${k === todayIso ? ' class="today"' : ''}><b>${d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}</b><span>${diary[k].join('<br>')}</span></li>`;
+    }).join('');
   };
   if (cal) drawCal(H.diary);
   content('fixtures.json').then(f => {
