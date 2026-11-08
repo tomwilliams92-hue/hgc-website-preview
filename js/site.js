@@ -194,7 +194,7 @@
     const draw = () => {
       const h = H.holes[n - 1], t = h[tee];
       img.style.opacity = 0;
-      setTimeout(() => { img.src = `img/holes/hole-${n}.jpg`; img.alt = `Hole ${n} from the drone flyover`; img.onload = () => img.style.opacity = 1; }, 150);
+      setTimeout(() => { img.src = `img/holes/hole-${n}.webp`; img.alt = `Hole ${n} from the drone flyover`; img.onload = () => img.style.opacity = 1; }, 150);
       $('.hn', ex).innerHTML = `<small>Hole</small>${n}`;
       $('[data-k=par]', ex).textContent = t[1];
       $('[data-k=yds]', ex).textContent = t[0];

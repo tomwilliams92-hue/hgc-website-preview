@@ -412,3 +412,7 @@ body.scrolled .menubtn::before{content:"";position:absolute;inset:-10px -14px;ba
 a.hbadge:hover{box-shadow:0 16px 40px rgba(0,0,0,.36)}
 @media (max-width:760px){.hbadges{gap:8px;margin-bottom:16px}.hbadge{gap:9px;padding:8px 12px 8px 9px;border-radius:12px}.hbadge .l{min-width:32px}.hbadge .l svg{width:26px;height:26px}
   .hbadge .l>span{font-size:13px}.hbadge .l i{font-size:14px}.hbadge .ncg b{font-size:22px}.hbadge .ncg small{font-size:9.5px}.hbadge .r b{font-size:13px}.hbadge .r small{font-size:11px}}
+
+/* 08.11.2026 housekeeping: each phone number stays on one line; the area photo credits are links */
+.wlfoot .nw{white-space:nowrap}
+.wlfoot .credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
