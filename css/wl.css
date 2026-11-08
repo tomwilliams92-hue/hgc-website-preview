@@ -414,5 +414,6 @@ a.hbadge:hover{box-shadow:0 16px 40px rgba(0,0,0,.36)}
   .hbadge .l>span{font-size:13px}.hbadge .l i{font-size:14px}.hbadge .ncg b{font-size:22px}.hbadge .ncg small{font-size:9.5px}.hbadge .r b{font-size:13px}.hbadge .r small{font-size:11px}}
 
 /* 08.11.2026 housekeeping: each phone number stays on one line; the area photo credits are links */
-.wlfoot .nw{white-space:nowrap}
+.wlfoot .nw{white-space:nowrap;display:inline-block}   /* inline-block, so the line can still break between the numbers */
+@media (max-width:760px){.wlfoot{padding-bottom:84px}}   /* room for the Example site button, which sits over the last line */
 .wlfoot .credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
